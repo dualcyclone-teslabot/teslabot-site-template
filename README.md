@@ -48,6 +48,10 @@ In the Tesla developer portal (developer.tesla.com), when you create or edit you
 
 The redirect URI must match exactly what your bot sends during sign-in.
 
+## Keep your site online
+
+Your Tesla connection depends on this site for as long as you use it. Tesla expects the public key to stay at `/.well-known/appspecific/com.tesla.3p.public-key.pem`, and the `/callback` page is needed whenever you reconnect. Don't delete, rename or make the repository private. It's free and needs no upkeep.
+
 ## Privacy
 
 - **No third-party anything.** No external scripts, fonts, images, analytics or trackers. A Content-Security-Policy blocks all network requests from the page.
