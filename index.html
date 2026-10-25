@@ -4,34 +4,143 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<!-- No network requests allowed: no external scripts, styles, fonts, images or fetch/XHR. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="color-scheme" content="light dark">
-<meta name="robots" content="noindex">
-<title>{{OWNER}}'s Tesla bot</title>
+<meta name="description" content="Teslabot site: a free, private home for your Tesla bot's public key, so it can use Tesla's official Fleet API.">
+<title>Teslabot site</title>
 <style>
-  :root { --bg:#f7f7f5; --card:#fff; --text:#1c1c1e; --muted:#5f6368; --accent:#0b57d0; --border:#e2e2e0; }
+  :root {
+    --bg:#f7f7f5; --card:#ffffff; --text:#1c1c1e; --muted:#5f6368; --border:#e2e2e0;
+    --accent:#0b57d0; --accent-text:#ffffff; --ok:#137333; --ok-bg:#e6f4ea;
+    --field:#f1f3f4; --focus:#0b57d0;
+  }
   @media (prefers-color-scheme: dark) {
-    :root { --bg:#121214; --card:#1d1d20; --text:#ececee; --muted:#a8a8ad; --accent:#8ab4f8; --border:#2e2e33; }
+    :root {
+      --bg:#121214; --card:#1d1d20; --text:#ececee; --muted:#a8a8ad; --border:#2e2e33;
+      --accent:#8ab4f8; --accent-text:#0b1d3a; --ok:#81c995; --ok-bg:#1e3a27;
+      --field:#26262a; --focus:#8ab4f8;
+    }
   }
   * { box-sizing:border-box; }
-  body { margin:0; font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); }
-  main { max-width:36rem; margin:0 auto; padding:2.5rem 1.25rem; }
-  .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.5rem; }
-  h1 { font-size:1.5rem; line-height:1.25; margin:0 0 .75rem; }
+  html { -webkit-text-size-adjust:100%; }
+  body { display:flex; flex-direction:column; min-height:100vh; min-height:100dvh; margin:0; font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); }
+  main { width:100%; max-width:36rem; margin:0 auto; padding:2rem 1.1rem 1rem; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:1.4rem 1.25rem; margin-bottom:1rem; }
+  .badge { display:inline-flex; align-items:center; justify-content:center; width:3rem; height:3rem; border-radius:50%; font-size:1.5rem; margin-bottom:.6rem; background:var(--field); }
+  h1 { font-size:1.55rem; line-height:1.2; margin:0 0 .5rem; }
+  h2 { font-size:1.15rem; line-height:1.3; margin:0 0 .5rem; }
   p { margin:.5rem 0; }
-  .muted { color:var(--muted); font-size:.9rem; }
+  ul, ol { margin:.5rem 0; padding-left:1.25rem; }
+  li { margin:.35rem 0; }
+  .muted { color:var(--muted); font-size:.92rem; }
   a { color:var(--accent); }
+  a:focus-visible, .btn:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+  .btn {
+    display:flex; align-items:center; justify-content:center; width:100%; min-height:52px; margin-top:.75rem;
+    padding:.7rem 1.2rem; border-radius:12px; background:var(--accent); color:var(--accent-text);
+    font-weight:600; text-decoration:none;
+  }
+  .btn.secondary { background:transparent; color:var(--text); border:1px solid var(--border); }
   code { font:.85rem ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; word-break:break-all; }
+  .not li::marker { content:"✕  "; color:var(--muted); }
+  .steps { counter-reset:step; list-style:none; padding:0; }
+  .steps li { counter-increment:step; position:relative; padding-left:2.4rem; margin:.8rem 0; }
+  .steps li::before {
+    content:counter(step); position:absolute; left:0; top:-.1rem; width:1.75rem; height:1.75rem; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; background:var(--ok-bg); color:var(--ok); font-weight:700; font-size:.9rem;
+  }
+  .links { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.75rem; }
+  .links a { display:inline-flex; align-items:center; min-height:44px; padding:.5rem .9rem; border:1px solid var(--border); border-radius:999px; text-decoration:none; color:var(--text); }
+  footer { width:100%; max-width:36rem; margin:auto auto 0; padding:1rem 1.1rem 1.5rem; text-align:center; color:var(--muted); font-size:.85rem; }
+  footer a { color:var(--muted); }
+  .tagline { font-size:1.1rem; color:var(--muted); margin:0 0 .25rem; }
+  .merits { list-style:none; padding:0; }
+  .merits li { position:relative; padding-left:2rem; }
+  .merits li span { position:absolute; left:0; top:0; }
+  .small-link { display:inline-flex; align-items:center; min-height:44px; font-size:.9rem; }
+  .owner { text-align:center; color:var(--muted); font-size:.9rem; margin:.25rem 0 0; }
+  .owner .links { justify-content:center; margin-top:.4rem; }
+  .owner .links a { min-height:40px; font-size:.88rem; }
+  [hidden] { display:none !important; }
 </style>
 </head>
 <body>
 <main>
-  <div class="card">
-    <h1>👋 Hello! This is {{OWNER}}'s Tesla bot</h1>
-    <p>This little site hosts the Tesla Fleet API public key for {{OWNER}}'s personal Tesla bot. Tesla checks it to confirm the bot is who it says it is.</p>
-    <p>Public key:<br><a href="/.well-known/appspecific/com.tesla.3p.public-key.pem"><code>/.well-known/appspecific/com.tesla.3p.public-key.pem</code></a></p>
-    <p class="muted">Only the public key lives here. The private key stays on the bot's own computer. There are no scripts, cookies or trackers on this site.</p>
+  <section class="card" aria-labelledby="title">
+    <div class="badge" aria-hidden="true">⚡</div>
+    <h1 id="title">Teslabot site</h1>
+    <p class="tagline">A free, private home for your Tesla bot's public key.</p>
+  </section>
+
+  <section class="card" aria-labelledby="why-title">
+    <h2 id="why-title">Why this exists</h2>
+    <p>Tesla's official Fleet API lets you read your own Powerwall, solar and car data. The catch is that each app has to publish a public key on a website it controls.</p>
+    <p>Most people don't have a website, and setting one up is a faff. This template gives you one for free on GitHub Pages in a couple of minutes.</p>
+  </section>
+
+  <section class="card" aria-labelledby="good-title">
+    <h2 id="good-title">Why it's good</h2>
+    <ul class="merits">
+      <li><span aria-hidden="true">💷</span><strong>Free.</strong> No domain to buy and no hosting bill.</li>
+      <li><span aria-hidden="true">✅</span><strong>Official.</strong> It uses Tesla's own API, not an unofficial workaround.</li>
+      <li><span aria-hidden="true">🔒</span><strong>Private.</strong> No accounts, tracking, cookies or scripts from other sites. Your private key and your data never live here.</li>
+      <li><span aria-hidden="true">🧩</span><strong>Simple.</strong> Just a public key plus a sign-in page that shows you a code to copy.</li>
+      <li><span aria-hidden="true">👀</span><strong>Open.</strong> All the code is in plain view on GitHub.</li>
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="how-title">
+    <h2 id="how-title">How it works</h2>
+    <ol class="steps">
+      <li>Your bot makes a key pair and publishes only the public half here.</li>
+      <li>You register this site with Tesla.</li>
+      <li>You sign in with Tesla, this site shows you a one-time code on its <a href="/callback">sign-in page</a>, and you give it to your bot.</li>
+    </ol>
+  </section>
+
+  <section class="card" aria-labelledby="make-title">
+    <h2 id="make-title">Make your own</h2>
+    <p>Got a Tesla and a bot? Set up your own copy in a couple of minutes.</p>
+    <a class="btn" href="https://github.com/dualcyclone-teslabot/teslabot-site-template" target="_blank" rel="noopener noreferrer">Use this template</a>
+  </section>
+
+  <p class="owner" id="owner"><span id="owner-run">This copy is run by <span id="owner-name">{{OWNER}}</span>.</span>
+    <a class="small-link" href="/.well-known/appspecific/com.tesla.3p.public-key.pem">View its public key</a></p>
+  <div class="owner" id="owner-links" hidden>
+    <div class="links">
+      <a data-owner-link href="{{OWNER_GITHUB_URL}}" target="_blank" rel="noopener noreferrer" hidden>GitHub</a>
+      <a data-owner-link href="{{OWNER_X_URL}}" target="_blank" rel="noopener noreferrer" hidden>X</a>
+      <a data-owner-link href="{{COFFEE_URL}}" target="_blank" rel="noopener noreferrer" hidden>☕ Buy me a coffee</a>
+    </div>
   </div>
 </main>
+
+<footer>
+  <p>Made by Luke ·
+    <a data-credit-link href="https://github.com/dualcyclone" target="_blank" rel="noopener noreferrer">GitHub</a> ·
+    <a data-credit-link href="https://x.com/dualcyclone" target="_blank" rel="noopener noreferrer">X</a> ·
+    <a data-credit-link href="https://buymeacoffee.com/dualcyclone" target="_blank" rel="noopener noreferrer">Buy me a coffee</a></p>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  // Show each owner link only if its placeholder was filled with a real https:// URL,
+  // and skip any that duplicate the footer credit (e.g. when the owner is the template author).
+  function norm(u) { return u.trim().replace(/\/+$/, "").toLowerCase(); }
+  var credit = Array.prototype.map.call(document.querySelectorAll("[data-credit-link]"), function (a) { return norm(a.getAttribute("href")); });
+  var shown = 0;
+  document.querySelectorAll("[data-owner-link]").forEach(function (a) {
+    var href = (a.getAttribute("href") || "").trim();
+    var ok = /^https:\/\/[^\s"'<>]+$/i.test(href) && href.indexOf("{{") === -1 && credit.indexOf(norm(href)) === -1;
+    if (ok) { a.hidden = false; shown++; } else { a.remove(); }
+  });
+  if (shown) { document.getElementById("owner-links").hidden = false; }
+  // Hide the "run by" name if the owner placeholder wasn't filled in (the key link stays).
+  var n = document.getElementById("owner-name").textContent.trim();
+  if (!n || n.indexOf("{{") !== -1) { document.getElementById("owner-run").remove(); }
+})();
+</script>
 </body>
 </html>
